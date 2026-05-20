@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>B3 · Weather Fill-in | Moscow, Shanghai, Cairo, Sydney</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            background: linear-gradient(145deg, #e6f0f5 0%, #cbdde6 100%);
+            font-family: 'Segoe UI', 'Poppins', 'Roboto', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+            margin: 0;
+        }
+        .b3-container {
+            max-width: 1500px;
+            width: 100%;
+            background: #fffffffb;
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            padding: 1.8rem 2rem 2rem 2rem;
+        }
+        .header {
+            margin-bottom: 1.5rem;
+            border-left: 6px solid #f4a261;
+            padding-left: 1.2rem;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.7rem;
+            color: #2c5e2f;
+            font-weight: 700;
+        }
+        .sub {
+            color: #7d6b4a;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        /* LEFT: CHARTS (vertical) - width at least half of the container */
+        .charts-area {
+            flex: 2;
+            min-width: 45%;
+            background: #fefbf2;
+            border-radius: 1.6rem;
+            padding: 1rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03), inset 0 0 0 1px #fff8e7;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 1.2rem;
+            margin-bottom: 1.8rem;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .chart-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #b4652a;
+            border-left: 3px solid #f4a261;
+            padding-left: 10px;
+            margin-bottom: 14px;
+        }
+        .chart-img {
+            width: 100%;
+            border-radius: 1rem;
+            background: #faf5e6;
+            display: block;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .img-note {
+            font-size: 0.75rem;
+            text-align: center;
+            color: #9c896c;
+            margin-top: 8px;
+        }
+        /* RIGHT PANEL */
+        .right-panel {
+            flex: 1.4;
+            min-width: 300px;
+            background: #fffef9;
+            border-radius: 1.6rem;
+            padding: 1rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .word-bank {
+            background: #fef4e2;
+            border-radius: 1.4rem;
+            padding: 0.8rem 1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .word-bank h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            color: #a5662a;
+            font-weight: 600;
+        }
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: flex-start;
+        }
+        .word-btn {
+            background: white;
+            border: 1px solid #e7d8be;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4d6b3a;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .word-btn:hover {
+            background: #f5e7d3;
+            border-color: #f4a261;
+            transform: scale(0.98);
+        }
+        .word-btn.selected {
+            background: #f4cfa6;
+            border-color: #e67e22;
+            box-shadow: 0 0 0 2px #f4a261;
+        }
+        .passage-box {
+            background: #fefcf5;
+            border-radius: 1.4rem;
+            padding: 1rem 1.4rem;
+            border: 1px solid #f0e6d4;
+        }
+        .passage-text {
+            font-size: 1rem;
+            line-height: 1.65;
+            color: #2d3e2b;
+            font-family: 'Segoe UI', Georgia, serif;
+        }
+        .blank {
+            display: inline-block;
+            min-width: 95px;
+            background: #fff2e0;
+            border-bottom: 2px dashed #f4a261;
+            border-radius: 12px;
+            padding: 2px 8px;
+            margin: 0 2px;
+            text-align: center;
+            font-weight: 600;
+            color: #bc6f2c;
+            cursor: pointer;
+        }
+        .blank.filled {
+            background: #e2f0da;
+            border-bottom: 2px solid #6b9c42;
+            color: #2b5e2f;
+        }
+        .action-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .check-btn {
+            background: #f4a261;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .check-btn:hover {
+            background: #e8893a;
+        }
+        .reset-btn {
+            background: #d9c6a0;
+            color: #5a472a;
+        }
+        .feedback {
+            background: #f7f2e2;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            color: #7f6944;
+            flex: 1;
+        }
+        .footer {
+            margin-top: 1.8rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #bda97e;
+            border-top: 1px solid #efe3cf;
+            padding-top: 1rem;
+        }
+        @media (max-width: 850px) {
+            .b3-container { padding: 1rem; }
+            .word-btn { padding: 5px 12px; font-size: 0.8rem;}
+            .blank { min-width: 70px; font-size: 0.85rem;}
+            .charts-area { flex: 1.5; min-width: 40%; }
+            .right-panel { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+<div class="b3-container">
+    <div class="header">
+        <h1>🌎 B3 · Complete the Article</h1>
+        <div class="sub">📊 Use charts (left) as clues → Click a word (top) → Click a blank to fill</div>
+    </div>
+
+    <div class="dashboard">
+        <!-- LEFT: three charts vertical (Rainfall, Snowfall, Wind Speed) -->
+        <div class="charts-area">
+            <div class="chart-card">
+                <div class="chart-title">💧 Rainfall (mm) – December</div>
+                <img class="chart-img" src="rainfall_chart.png" alt="Rainfall chart" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20200%22%3E%3Crect%20width%3D%22400%22%20height%3D%22200%22%20fill%3D%22%23f3ecd8%22%2F%3E%3Ctext%20x%3D%2220%22%20y%3D%2230%22%20fill%3D%22%238f7a57%22%3ERainfall%20chart%3C%2Ftext%3E%3C%2Fsvg%3E';">
+                <div class="img-note">📌 Shanghai high rainfall → wet; Sydney moderate → rains</div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">❄️ Snowfall (cm) – December</div>
+                <img class="chart-img" src="snowfall_chart.png" alt="Snowfall chart" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20200%22%3E%3Crect%20width%3D%22400%22%20height%3D%22200%22%20fill%3D%22%23f3ecd8%22%2F%3E%3Ctext%20x%3D%2220%22%20y%3D%2230%22%20fill%3D%22%238f7a57%22%3ESnowfall%20chart%3C%2Ftext%3E%3C%2Fsvg%3E';">
+                <div class="img-note">📌 Moscow highest snowfall → clue for (2) snow</div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">💨 Wind Speed (km/h) – December</div>
+                <img class="chart-img" src="wind_chart.png" alt="Wind speed chart" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20200%22%3E%3Crect%20width%3D%22400%22%20height%3D%22200%22%20fill%3D%22%23f3ecd8%22%2F%3E%3Ctext%20x%3D%2220%22%20y%3D%2230%22%20fill%3D%22%238f7a57%22%3EWind%20speed%20chart%3C%2Ftext%3E%3C%2Fsvg%3E';">
+                <div class="img-note">📌 Shanghai higher wind speed → clue for (3) wind</div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: word bank (8 exact words, shuffled) + passage -->
+        <div class="right-panel">
+            <div class="word-bank">
+                <h3>📋 WORD BANK (click a word, then click a blank)</h3>
+                <div class="word-list" id="wordList"></div>
+            </div>
+
+            <div class="passage-box">
+                <div class="passage-text">
+                    Moscow is cold and wet in December. At the start of winter, there are only 
+                    <span class="blank" data-idx="0">______</span> hours of daylight every day, 
+                    and the average temperature is below 0°C. You need lots of warm clothes when 
+                    you go outside because it is so cold and there is often a lot of 
+                    <span class="blank" data-idx="1">______</span>.
+                    <br><br>
+                    Shanghai does not get very cold in December as it is next to the sea. 
+                    Sometimes there is a cool <span class="blank" data-idx="2">______</span>, so you 
+                    need a scarf when you go out. In Shanghai, it often rains but seldom snows, 
+                    so it can be quite <span class="blank" data-idx="3">______</span> in winter.
+                    <br><br>
+                    December is a <span class="blank" data-idx="4">______</span> month in Cairo, 
+                    but it is not a cold one. The average temperature is above 10°C. It is usually 
+                    cloudy, but warm and pleasant in winter, so it's fine to wear a light jacket.
+                    <br><br>
+                    In Sydney, December is a <span class="blank" data-idx="5">______</span> month. 
+                    The average temperature is above 20°C. It often gets about nine hours of 
+                    <span class="blank" data-idx="6">______</span> every day and little rain, 
+                    but sometimes it <span class="blank" data-idx="7">______</span>, so you still 
+                    need an umbrella.
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button class="check-btn" id="checkBtn">✅ Check Answers</button>
+                <button class="check-btn reset-btn" id="resetBtn">🔄 Reset Blanks</button>
+                <div class="feedback" id="feedbackMsg">👉 1. Click a word above  →  2. Click any blank → fills automatically</div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        🌎 December climate data | Charts help identify correct words | Click word bank → fill blanks
+    </div>
+</div>
+
+<script>
+    // ---------- CORRECT ANSWERS (fixed order) ----------
+    const ANSWER_KEY = [
+        "about 6 or 7",   // blank 0
+        "snow",           // blank 1
+        "wind",           // blank 2
+        "wet",            // blank 3
+        "winter",         // blank 4 (Cairo, winter month but mild)
+        "summer",         // blank 5 (Sydney summer)
+        "sunshine",       // blank 6
+        "rains"           // blank 7
+    ];
+
+    // WORD BANK (exactly these 8 words, but we will shuffle them randomly)
+    const RAW_BANK = ["about 6 or 7", "snow", "wind", "wet", "winter", "summer", "sunshine", "rains"];
+
+    // Shuffle function (Fisher-Yates)
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let selectedWord = null;
+    let blanks = [];
+    let currentFillState = new Array(8).fill("");
+
+    // render blanks based on currentFillState
+    function renderBlanks() {
+        for (let i = 0; i < blanks.length; i++) {
+            const blankSpan = blanks[i];
+            if (currentFillState[i] && currentFillState[i].trim() !== "") {
+                blankSpan.innerText = currentFillState[i];
+                blankSpan.classList.add("filled");
+            } else {
+                blankSpan.innerText = "______";
+                blankSpan.classList.remove("filled");
+            }
+        }
+    }
+
+    // reset all blanks and clear selection
+    function resetAllBlanks() {
+        currentFillState = new Array(8).fill("");
+        renderBlanks();
+        selectedWord = null;
+        document.querySelectorAll(".word-btn").forEach(btn => btn.classList.remove("selected"));
+        const feedbackDiv = document.getElementById("feedbackMsg");
+        feedbackDiv.innerHTML = "🔄 All blanks cleared. Choose a word from the bank, then click a blank.";
+        feedbackDiv.style.backgroundColor = "#f7f2e2";
+    }
+
+    // check answers against ANSWER_KEY
+    function checkAnswers() {
+        let correctCount = 0;
+        for (let i = 0; i < ANSWER_KEY.length; i++) {
+            if (currentFillState[i].trim().toLowerCase() === ANSWER_KEY[i].toLowerCase()) correctCount++;
+        }
+        const total = ANSWER_KEY.length;
+        const feedbackDiv = document.getElementById("feedbackMsg");
+        if (correctCount === total) {
+            feedbackDiv.innerHTML = "🎉 Perfect! All answers correct. Great use of charts! 🎉";
+            feedbackDiv.style.backgroundColor = "#e0f0da";
+        } else {
+            feedbackDiv.innerHTML = `📝 You got ${correctCount} out of ${total} correct. Review the charts and try again! 🌟`;
+            feedbackDiv.style.backgroundColor = "#fff0e0";
+        }
+    }
+
+    // initialize UI: build shuffled word buttons, bind blanks
+    function initPage() {
+        // shuffle the word bank so order is random (not aligned with answers)
+        const shuffledBank = shuffleArray([...RAW_BANK]);
+        
+        const wordContainer = document.getElementById("wordList");
+        wordContainer.innerHTML = "";
+        shuffledBank.forEach(word => {
+            const btn = document.createElement("button");
+            btn.textContent = word;
+            btn.classList.add("word-btn");
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                // remove selected style from all buttons
+                document.querySelectorAll(".word-btn").forEach(btn => btn.classList.remove("selected"));
+                selectedWord = word;
+                btn.classList.add("selected");
+                const feedbackDiv = document.getElementById("feedbackMsg");
+                feedbackDiv.innerHTML = `✅ Selected: "${word}". Now click on any blank to fill it.`;
+                feedbackDiv.style.backgroundColor = "#fef0da";
+            });
+            wordContainer.appendChild(btn);
+        });
+
+        // get all blanks
+        blanks = Array.from(document.querySelectorAll(".blank"));
+        for (let i = 0; i < blanks.length; i++) {
+            const blank = blanks[i];
+            const idx = parseInt(blank.getAttribute("data-idx"), 10);
+            blank.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (selectedWord) {
+                    currentFillState[idx] = selectedWord;
+                    renderBlanks();
+                    const feedbackDiv = document.getElementById("feedbackMsg");
+                    feedbackDiv.innerHTML = `✔️ Blank ${idx+1} filled with "${selectedWord}". You can keep filling or choose another word.`;
+                    feedbackDiv.style.backgroundColor = "#eaf7e8";
+                } else {
+                    const feedbackDiv = document.getElementById("feedbackMsg");
+                    feedbackDiv.innerHTML = "⚠️ First, click on a word from the WORD BANK above, then click the blank.";
+                    feedbackDiv.style.backgroundColor = "#ffe0b5";
+                    blank.classList.add("active-blank");
+                    setTimeout(() => blank.classList.remove("active-blank"), 600);
+                }
+            });
+        }
+
+        // reset button
+        const resetBtn = document.getElementById("resetBtn");
+        resetBtn.addEventListener("click", resetAllBlanks);
+
+        // check button
+        const checkBtn = document.getElementById("checkBtn");
+        checkBtn.addEventListener("click", checkAnswers);
+
+        // initial render
+        renderBlanks();
+        selectedWord = null;
+    }
+
+    window.addEventListener("DOMContentLoaded", initPage);
+</script>
+</body>
+</html>
